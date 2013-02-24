@@ -1,0 +1,32 @@
+#!/usr/bin/env expect
+#2013-03-06
+#作者george.li 
+
+
+#擷取命令結果方法
+# 
+#example:
+#set result [get ls]
+#
+#這樣就可以把ls 的回傳結果放回result內~
+
+proc get {command} {
+
+    set screen ""
+    set result ""
+
+    send "$command\r"
+    send "echo ====end====\r"
+    expect "====end===="
+    #與其在那邊抓開頭.. 不如自己灌..
+
+    set screen $expect_out(buffer)
+    
+    #command後輸出的資料抓出來..
+    regexp "$command\(.*\)====end====" $screen \
+           match result
+    
+
+    return $result        
+}
+
