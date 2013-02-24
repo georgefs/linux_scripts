@@ -30,3 +30,41 @@ proc get {command} {
     return $result        
 }
 
+#簡單ssh登入
+#
+proc ssh {host user password} {
+    spawn -noecho ssh -l $user $host
+    set prompt   "(%|#|>|\\\$)$|(%|#|>|\\\$) $"
+
+    expect {
+        "(yes/no)? $" {
+            send "yes\n"
+            exp_continue
+        }
+        "assword: $" {
+            send "$password\r"
+            exp_continue
+        }
+        -re "Permission denied" {
+            send_user "$host Permission denied"
+            close; wait; return
+        }
+        -re "No route to host" {
+            send_user  "$host No route to host" 
+            close; wait; return
+        }
+        -re "Host key verification failed" {
+            send_user  "$host Host key verification failed"
+            close; wait; exit
+        }
+        timeout {
+            send_user "$"
+            close; wait; return
+        }
+        -re $prompt {
+            # normal situation
+        }
+    }
+
+}
+
